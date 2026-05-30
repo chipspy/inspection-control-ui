@@ -273,3 +273,69 @@ For every coding response, use this structure:
 When giving code, make it copy-paste friendly.
 
 When there is an error, explain it for a beginner.
+
+## Main screen integration rules
+
+The application now needs a Main screen before the I/O monitor screen.
+
+The startup flow should be:
+
+1. main.py starts the application.
+2. MainWindow is displayed first.
+3. MainWindow contains industrial HMI-style function keys.
+4. When the user clicks the I/O function key, the existing I/O monitor screen opens.
+5. The existing I/O screen must not be redesigned or rewritten unnecessarily.
+6. Refactor the existing I/O screen into a reusable IOMonitorWindow if needed.
+7. The I/O screen should keep its DI / DO / CAMERA simulation behavior.
+8. The I/O screen EXIT button should close the I/O screen or return to Main, not accidentally destroy the whole application unless explicitly requested.
+9. Keep Main screen code and I/O screen code separated.
+10. Do not write real PLC, camera, motor, robot, or actuator control code.
+
+## Main screen UI rules
+
+The Main screen should follow the attached reference image provided by the user.
+
+It should feel like an industrial equipment HMI main menu.
+
+Recommended elements:
+- Equipment title area
+- Function key buttons
+- I/O or IO MONITOR button
+- Manual button
+- Auto button
+- Alarm button
+- Recipe or Setting button
+- Exit button
+- Status area if shown in the reference image
+- Industrial colors and large readable buttons
+
+## Navigation rule
+
+For the first implementation, prefer this safe method:
+
+- Main screen opens I/O screen as a separate window or child window.
+- Keep a reference to the I/O window so it does not disappear immediately.
+- If the I/O window is already open, bring it to the front instead of opening duplicates.
+
+Possible implementation pattern:
+
+self.io_window = None
+
+def open_io_monitor(self):
+    if self.io_window is None or not self.io_window.isVisible():
+        self.io_window = IOMonitorWindow(parent=self)
+    self.io_window.show()
+    self.io_window.raise_()
+    self.io_window.activateWindow()
+
+## Response rule
+
+When modifying this project, always proceed in small safe steps:
+
+1. Inspect current files first.
+2. Identify which file currently contains the I/O screen.
+3. Do not rewrite the I/O screen.
+4. Rename or move only when necessary.
+5. Create the Main screen.
+6. Connect the Main screen I/O button to the existing I/O screen.
+7. Explain how to run and test.
